@@ -1,13 +1,33 @@
 <html>
+
 <head>
 <title>ACEest Fitness</title>
 </head>
 
 <body>
 
-<h1>ACEest Functional Fitness</h1>
+<h1>ACEest Functional Fitness System</h1>
 
 <form method="POST">
+
+<h3>Client Profile</h3>
+
+Name
+<input type="text" name="name" required>
+
+<br><br>
+
+Age
+<input type="number" name="age" required>
+
+<br><br>
+
+Weight (kg)
+<input type="number" step="0.1" name="weight" required>
+
+<br><br>
+
+Program
 <select name="program">
 
 {% for p in programs %}
@@ -16,16 +36,34 @@
 
 </select>
 
-<button type="submit">Show Program</button>
+<br><br>
+
+<button type="submit">Generate Plan</button>
+
 </form>
 
-{% if selected_program %}
+{% if result %}
 
-<h2>Workout</h2>
-<p>{{selected_program.workout}}</p>
+<hr>
 
-<h2>Diet</h2>
-<p>{{selected_program.diet}}</p>
+<h2>Client Summary</h2>
+
+Name : {{result.name}} <br>
+Age : {{result.age}} <br>
+Weight : {{result.weight}} kg <br>
+Program : {{result.program}} <br>
+
+<h3>Estimated Calories</h3>
+
+{{result.calories}} kcal/day
+
+<h3>Workout Plan</h3>
+
+<pre>{{result.workout}}</pre>
+
+<h3>Nutrition Plan</h3>
+
+<pre>{{result.diet}}</pre>
 
 {% endif %}
 

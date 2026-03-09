@@ -4,30 +4,76 @@ app = Flask(__name__)
 
 programs = {
     "Fat Loss": {
-        "workout": "Squats, HIIT, Deadlifts",
-        "diet": "Egg whites, chicken, fish"
+        "workout": """Mon: Squats + Core
+Tue: HIIT Cardio
+Wed: Bench Press
+Thu: Deadlift
+Fri: Zone 2 Cardio""",
+        "diet": """Breakfast: Egg Whites + Oats
+Lunch: Chicken + Brown Rice
+Dinner: Fish + Millet""",
+        "calorie_factor": 22
     },
+
     "Muscle Gain": {
-        "workout": "Squat, Bench, Deadlift",
-        "diet": "Eggs, Biryani, Protein"
+        "workout": """Mon: Squat
+Tue: Bench Press
+Wed: Deadlift
+Thu: Front Squat
+Fri: Rows""",
+        "diet": """Breakfast: Eggs + Oats
+Lunch: Chicken Biryani
+Dinner: Mutton Curry""",
+        "calorie_factor": 35
     },
+
     "Beginner": {
-        "workout": "Pushups, Air squats",
-        "diet": "Balanced diet"
+        "workout": """Full Body Circuit
+Pushups
+Air Squats
+Ring Rows""",
+        "diet": """Balanced Diet
+Idli / Dosa
+Rice + Dal""",
+        "calorie_factor": 26
     }
 }
 
 @app.route("/", methods=["GET","POST"])
 def index():
-    selected_program = None
+
+    result = None
+
     if request.method == "POST":
-        program = request.form["program"]
-        selected_program = programs.get(program)
+
+        name = request.form.get("name")
+        age = request.form.get("age")
+        weight = request.form.get("weight")
+        program = request.form.get("program")
+
+        if not weight:
+            return render_template("index.html", programs=programs.keys())
+
+        weight = float(weight)
+                
+        p = programs[program]
+
+        calories = int(weight * p["calorie_factor"])
+
+        result = {
+            "name": name,
+            "age": age,
+            "weight": weight,
+            "program": program,
+            "workout": p["workout"],
+            "diet": p["diet"],
+            "calories": calories
+        }
 
     return render_template(
         "index.html",
         programs=programs.keys(),
-        selected_program=selected_program
+        result=result
     )
 
 if __name__ == "__main__":
