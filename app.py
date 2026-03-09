@@ -152,5 +152,25 @@ def progress_chart():
 
     return render_template("chart.html", graph=graph)
 
+@app.route("/log_workout", methods=["POST"])
+def log_workout():
+
+    name = request.form["name"]
+    workout = request.form["workout"]
+    duration = request.form["duration"]
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute(
+        "INSERT INTO workouts(client_name,date,workout_type,duration) VALUES(?,?,?,?)",
+        (name,"today",workout,duration)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/dashboard")
+
 if __name__ == "__main__":
     app.run(debug=True)

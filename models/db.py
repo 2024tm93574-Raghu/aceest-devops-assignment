@@ -27,5 +27,14 @@ def init_db():
     )
     """)
 
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS workouts(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    client_name TEXT,
+    date TEXT,
+    workout_type TEXT,
+    duration INTEGER
+    )
+    """)
     conn.commit()
     conn.close()
