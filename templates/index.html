@@ -1,0 +1,33 @@
+<html>
+<head>
+<title>ACEest Fitness</title>
+</head>
+
+<body>
+
+<h1>ACEest Functional Fitness</h1>
+
+<form method="POST">
+<select name="program">
+
+{% for p in programs %}
+<option value="{{p}}">{{p}}</option>
+{% endfor %}
+
+</select>
+
+<button type="submit">Show Program</button>
+</form>
+
+{% if selected_program %}
+
+<h2>Workout</h2>
+<p>{{selected_program.workout}}</p>
+
+<h2>Diet</h2>
+<p>{{selected_program.diet}}</p>
+
+{% endif %}
+
+</body>
+</html>
