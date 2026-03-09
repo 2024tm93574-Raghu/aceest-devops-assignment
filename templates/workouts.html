@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Workout History</title>
+<link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+
+<h1>Workout History</h1>
+
+<a href="/dashboard">Back</a>
+
+<table>
+
+<tr>
+<th>ID</th>
+<th>Client</th>
+<th>Date</th>
+<th>Workout</th>
+<th>Duration</th>
+</tr>
+
+{% for w in workouts %}
+
+<tr>
+<td>{{w[0]}}</td>
+<td>{{w[1]}}</td>
+<td>{{w[2]}}</td>
+<td>{{w[3]}}</td>
+<td>{{w[4]}} min</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+</body>
+</html>

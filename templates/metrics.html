@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Body Metrics</title>
+<link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+
+<h1>Body Metrics</h1>
+
+<a href="/dashboard">Back</a>
+
+<table>
+
+<tr>
+<th>ID</th>
+<th>Client</th>
+<th>Date</th>
+<th>Weight</th>
+<th>Waist</th>
+<th>Bodyfat</th>
+</tr>
+
+{% for m in metrics %}
+
+<tr>
+<td>{{m[0]}}</td>
+<td>{{m[1]}}</td>
+<td>{{m[2]}}</td>
+<td>{{m[3]}}</td>
+<td>{{m[4]}}</td>
+<td>{{m[5]}}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+</body>
+</html>
