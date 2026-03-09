@@ -35,9 +35,22 @@
 <td>{{c[5]}}</td>
 </tr>
 
+
 {% endfor %}
 
 </table>
+
+<h2>Update Weekly Progress</h2>
+
+<form action="/progress" method="post">
+
+<input type="text" name="name" placeholder="Client Name">
+
+<input type="number" name="adherence" placeholder="Adherence %">
+
+<button type="submit">Save Progress</button>
+
+</form>
 
 </body>
 </html>

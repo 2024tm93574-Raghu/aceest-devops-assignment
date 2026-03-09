@@ -18,5 +18,14 @@ def init_db():
     )
     """)
 
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS progress(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        client_name TEXT,
+        week TEXT,
+        adherence INTEGER
+    )
+    """)
+
     conn.commit()
     conn.close()

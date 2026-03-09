@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect
 import sqlite3
 from models.db import init_db
+import jsonify
 
 app = Flask(__name__)
 
@@ -14,6 +15,25 @@ programs = {
 
 def get_db():
     return sqlite3.connect("database.db")
+
+@app.route("/progress", methods=["POST"])
+def save_progress():
+
+    name = request.form["name"]
+    adherence = request.form["adherence"]
+
+    conn = sqlite3.connect("database.db")
+    cur = conn.cursor()
+
+    cur.execute("""
+    INSERT INTO progress(client_name,week,adherence)
+    VALUES(?,?,?)
+    """,(name,"week1",adherence))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/dashboard")
 
 @app.route("/", methods=["GET","POST"])
 def index():
