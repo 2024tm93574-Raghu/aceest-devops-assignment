@@ -10,11 +10,14 @@ def init_db():
     cur.execute("""
     CREATE TABLE IF NOT EXISTS clients(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
+        name TEXT UNIQUE,
         age INTEGER,
+        height REAL,
         weight REAL,
         program TEXT,
-        calories INTEGER
+        calories INTEGER,
+        target_weight REAL,
+        membership_status TEXT
     )
     """)
 
@@ -29,12 +32,25 @@ def init_db():
 
     cur.execute("""
     CREATE TABLE IF NOT EXISTS workouts(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    client_name TEXT,
-    date TEXT,
-    workout_type TEXT,
-    duration INTEGER
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        client_name TEXT,
+        date TEXT,
+        workout_type TEXT,
+        duration INTEGER,
+        notes TEXT
     )
     """)
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS metrics(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        client_name TEXT,
+        date TEXT,
+        weight REAL,
+        waist REAL,
+        bodyfat REAL
+    )
+    """)
+
     conn.commit()
     conn.close()

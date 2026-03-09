@@ -172,5 +172,76 @@ def log_workout():
 
     return redirect("/dashboard")
 
+@app.route("/log_metrics", methods=["POST"])
+def log_metrics():
+
+    name = request.form["name"]
+    weight = request.form["weight"]
+    waist = request.form["waist"]
+    bodyfat = request.form["bodyfat"]
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+    INSERT INTO metrics(client_name,date,weight,waist,bodyfat)
+    VALUES(?,?,?,?,?)
+    """,(name,"today",weight,waist,bodyfat))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/dashboard")
+@app.route("/workout_history")
+def workout_history():
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM workouts ORDER BY id DESC")
+    workouts = cur.fetchall()
+
+    conn.close()
+
+
+    return render_template("workouts.html", workouts=workouts)
+
+@app.route("/metrics")
+def metrics():
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM metrics ORDER BY id DESC")
+    metrics = cur.fetchall()
+
+    conn.close()
+
+    return render_template("metrics.html", metrics=metrics)
+@app.route("/weight_chart")
+def weight_chart():
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT weight FROM metrics")
+    data = cur.fetchall()
+
+    conn.close()
+
+    values = [d[0] for d in data]
+
+    plt.figure()
+    plt.plot(values)
+
+    img = io.BytesIO()
+    plt.savefig(img, format="png")
+    img.seek(0)
+
+    graph = base64.b64encode(img.getvalue()).decode()
+
+    return render_template("chart.html", graph=graph)
+
+
 if __name__ == "__main__":
     app.run(debug=True)
