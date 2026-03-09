@@ -1,42 +1,15 @@
 from flask import Flask, render_template, request
+import sqlite3
+from models.db import init_db
 
 app = Flask(__name__)
 
+init_db()
+
 programs = {
-    "Fat Loss": {
-        "workout": """Mon: Squats + Core
-Tue: HIIT Cardio
-Wed: Bench Press
-Thu: Deadlift
-Fri: Zone 2 Cardio""",
-        "diet": """Breakfast: Egg Whites + Oats
-Lunch: Chicken + Brown Rice
-Dinner: Fish + Millet""",
-        "calorie_factor": 22
-    },
-
-    "Muscle Gain": {
-        "workout": """Mon: Squat
-Tue: Bench Press
-Wed: Deadlift
-Thu: Front Squat
-Fri: Rows""",
-        "diet": """Breakfast: Eggs + Oats
-Lunch: Chicken Biryani
-Dinner: Mutton Curry""",
-        "calorie_factor": 35
-    },
-
-    "Beginner": {
-        "workout": """Full Body Circuit
-Pushups
-Air Squats
-Ring Rows""",
-        "diet": """Balanced Diet
-Idli / Dosa
-Rice + Dal""",
-        "calorie_factor": 26
-    }
+    "Fat Loss": {"factor":22},
+    "Muscle Gain": {"factor":35},
+    "Beginner": {"factor":26}
 }
 
 @app.route("/", methods=["GET","POST"])
@@ -52,29 +25,33 @@ def index():
         program = request.form.get("program")
 
         if not weight:
-            return render_template("index.html", programs=programs.keys())
+            return render_template("index.html", programs=programs)
 
         weight = float(weight)
-                
-        p = programs[program]
+        calories = int(weight * programs[program]["factor"])
 
-        calories = int(weight * p["calorie_factor"])
+        conn = sqlite3.connect("database.db")
+        cur = conn.cursor()
+
+        cur.execute("""
+        INSERT INTO clients(name,age,weight,program,calories)
+        VALUES(?,?,?,?,?)
+        """,(name,age,weight,program,calories))
+
+        conn.commit()
+        conn.close()
 
         result = {
-            "name": name,
-            "age": age,
-            "weight": weight,
-            "program": program,
-            "workout": p["workout"],
-            "diet": p["diet"],
-            "calories": calories
+            "name":name,
+            "age":age,
+            "weight":weight,
+            "program":program,
+            "calories":calories
         }
 
-    return render_template(
-        "index.html",
-        programs=programs.keys(),
-        result=result
-    )
+    return render_template("index.html",
+                           programs=programs,
+                           result=result)
 
 if __name__ == "__main__":
     app.run(debug=True)
