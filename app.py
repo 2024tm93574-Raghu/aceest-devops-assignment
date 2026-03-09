@@ -58,6 +58,40 @@ def dashboard():
 
     return render_template("dashboard.html", clients=clients)
 
+@app.route("/health")
+def health():
+    return jsonify({"status": "ok"}), 200
+
+
+@app.route("/recommend_calories", methods=["POST"])
+def recommend_calories():
+
+    data = request.get_json()
+
+    if not data or "weight" not in data or "program" not in data:
+        return jsonify({"error": "missing fields"}), 400
+
+    weight = float(data["weight"])
+    program = data["program"]
+
+    programs = {
+        "Fat Loss FL 3 day": 22,
+        "Muscle Gain MG": 35,
+        "Beginner BG": 26
+    }
+
+    factor = programs.get(program)
+
+    if not factor:
+        return jsonify({"error": "invalid program"}), 400
+
+    calories = int(weight * factor)
+
+    return jsonify({
+        "weight": weight,
+        "program": program,
+        "recommended_calories": calories
+    }), 200
 
 if __name__ == "__main__":
     app.run(debug=True)
