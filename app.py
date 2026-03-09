@@ -82,6 +82,19 @@ def dashboard():
 def health():
     return jsonify({"status": "ok"}), 200
 
+@app.route("/progress_history")
+def progress_history():
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM progress ORDER BY id DESC")
+    progress = cur.fetchall()
+
+    conn.close()
+
+    return render_template("progress.html", progress=progress)
+
 @app.route("/recommend_calories", methods=["POST"])
 def recommend_calories():
 
