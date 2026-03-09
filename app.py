@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 import sqlite3
 from models.db import init_db
 
@@ -7,10 +7,13 @@ app = Flask(__name__)
 init_db()
 
 programs = {
-    "Fat Loss": {"factor":22},
-    "Muscle Gain": {"factor":35},
-    "Beginner": {"factor":26}
+    "Fat Loss": {"factor": 22},
+    "Muscle Gain": {"factor": 35},
+    "Beginner": {"factor": 26}
 }
+
+def get_db():
+    return sqlite3.connect("database.db")
 
 @app.route("/", methods=["GET","POST"])
 def index():
@@ -19,18 +22,14 @@ def index():
 
     if request.method == "POST":
 
-        name = request.form.get("name")
-        age = request.form.get("age")
-        weight = request.form.get("weight")
-        program = request.form.get("program")
+        name = request.form["name"]
+        age = request.form["age"]
+        weight = float(request.form["weight"])
+        program = request.form["program"]
 
-        if not weight:
-            return render_template("index.html", programs=programs)
-
-        weight = float(weight)
         calories = int(weight * programs[program]["factor"])
 
-        conn = sqlite3.connect("database.db")
+        conn = get_db()
         cur = conn.cursor()
 
         cur.execute("""
@@ -41,17 +40,24 @@ def index():
         conn.commit()
         conn.close()
 
-        result = {
-            "name":name,
-            "age":age,
-            "weight":weight,
-            "program":program,
-            "calories":calories
-        }
+        return redirect("/dashboard")
 
-    return render_template("index.html",
-                           programs=programs,
-                           result=result)
+    return render_template("index.html", programs=programs)
+
+
+@app.route("/dashboard")
+def dashboard():
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM clients")
+    clients = cur.fetchall()
+
+    conn.close()
+
+    return render_template("dashboard.html", clients=clients)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

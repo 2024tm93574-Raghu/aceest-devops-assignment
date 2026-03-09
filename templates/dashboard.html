@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>ACEest Dashboard</title>
+<link rel="stylesheet" href="/static/styles.css">
+
+</head>
+
+<body>
+
+<h1>ACEest Fitness Dashboard</h1>
+
+<a href="/">Add New Client</a>
+
+<table>
+
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Age</th>
+<th>Weight</th>
+<th>Program</th>
+<th>Calories</th>
+</tr>
+
+{% for c in clients %}
+
+<tr>
+<td>{{c[0]}}</td>
+<td>{{c[1]}}</td>
+<td>{{c[2]}}</td>
+<td>{{c[3]}}</td>
+<td>{{c[4]}}</td>
+<td>{{c[5]}}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+</body>
+</html>
