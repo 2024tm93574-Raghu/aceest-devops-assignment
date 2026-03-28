@@ -1,76 +1,53 @@
 from flask import Flask, render_template, request, redirect, jsonify
-import sqlite3
-from models.db import init_db
+from models.db import init_db, get_connection
+from datetime import date
 import matplotlib.pyplot as plt
-import io
-import base64
+import io, base64
 
 app = Flask(__name__)
-
 init_db()
 
 programs = {
-    "Fat Loss": {"factor": 22},
-    "Muscle Gain": {"factor": 35},
-    "Beginner": {"factor": 26}
+    "Fat Loss": 22,
+    "Muscle Gain": 35,
+    "Beginner": 26
 }
 
-def get_db():
-    return sqlite3.connect("database.db")
-
-@app.route("/save_progress", methods=["POST"])
-def save_progress():
-
-    name = request.form["name"]
-    adherence = request.form["adherence"]
-
-    conn = sqlite3.connect("database.db")
-    cur = conn.cursor()
-
-    cur.execute(
-        "INSERT INTO progress (client_name, week, adherence) VALUES (?,?,?)",
-        (name, "Week 1", adherence)
-    )
-
-    conn.commit()
-    conn.close()
-
-    return redirect("/dashboard")
-
-@app.route("/", methods=["GET","POST"])
+# ---------- HOME ----------
+@app.route("/", methods=["GET", "POST"])
 def index():
-
-    result = None
-
     if request.method == "POST":
+        try:
+            name = request.form["name"]
+            age = int(request.form["age"])
+            weight = float(request.form["weight"])
+            program = request.form["program"]
 
-        name = request.form["name"]
-        age = request.form["age"]
-        weight = float(request.form["weight"])
-        program = request.form["program"]
+            calories = int(weight * programs[program])
 
-        calories = int(weight * programs[program]["factor"])
+            conn = get_connection()
+            cur = conn.cursor()
 
-        conn = get_db()
-        cur = conn.cursor()
+            cur.execute("""
+                INSERT INTO clients(name, age, weight, program, calories)
+                VALUES (?, ?, ?, ?, ?)
+            """, (name, age, weight, program, calories))
 
-        cur.execute("""
-        INSERT INTO clients(name,age,weight,program,calories)
-        VALUES(?,?,?,?,?)
-        """,(name,age,weight,program,calories))
+            conn.commit()
+            conn.close()
 
-        conn.commit()
-        conn.close()
+            return redirect("/dashboard")
 
-        return redirect("/dashboard")
+        except Exception as e:
+            return f"Error: {e}"
 
     return render_template("index.html", programs=programs)
 
 
+# ---------- DASHBOARD ----------
 @app.route("/dashboard")
 def dashboard():
-
-    conn = get_db()
+    conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("SELECT * FROM clients")
@@ -81,90 +58,31 @@ def dashboard():
     return render_template("dashboard.html", clients=clients)
 
 
-@app.route("/health")
-def health():
-    return jsonify({"status": "ok"}), 200
-
-@app.route("/progress_history")
-def progress_history():
-
-    conn = get_db()
+# ---------- DELETE CLIENT ----------
+@app.route("/delete_client/<int:id>")
+def delete_client(id):
+    conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("SELECT * FROM progress ORDER BY id DESC")
-    progress = cur.fetchall()
-
+    cur.execute("DELETE FROM clients WHERE id=?", (id,))
+    conn.commit()
     conn.close()
 
-    return render_template("progress.html", progress=progress)
+    return redirect("/dashboard")
 
-@app.route("/recommend_calories", methods=["POST"])
-def recommend_calories():
 
-    data = request.get_json()
-
-    if not data or "weight" not in data or "program" not in data:
-        return jsonify({"error": "missing fields"}), 400
-
-    weight = float(data["weight"])
-    program = data["program"]
-
-    programs = {
-        "Fat Loss FL 3 day": 22,
-        "Muscle Gain MG": 35,
-        "Beginner BG": 26
-    }
-
-    factor = programs.get(program)
-
-    if not factor:
-        return jsonify({"error": "invalid program"}), 400
-
-    calories = int(weight * factor)
-
-    return jsonify({
-        "weight": weight,
-        "program": program,
-        "recommended_calories": calories
-    }), 200
-
-@app.route("/progress_chart")
-def progress_chart():
-
-    conn = get_db()
-    cur = conn.cursor()
-
-    cur.execute("SELECT adherence FROM progress")
-    data = cur.fetchall()
-
-    conn.close()
-
-    values = [d[0] for d in data]
-
-    plt.figure()
-    plt.plot(values)
-
-    img = io.BytesIO()
-    plt.savefig(img, format="png")
-    img.seek(0)
-
-    graph = base64.b64encode(img.getvalue()).decode()
-
-    return render_template("chart.html", graph=graph)
-
-@app.route("/log_workout", methods=["POST"])
-def log_workout():
-
+# ---------- SAVE PROGRESS ----------
+@app.route("/save_progress", methods=["POST"])
+def save_progress():
     name = request.form["name"]
-    workout = request.form["workout"]
-    duration = request.form["duration"]
+    adherence = request.form["adherence"]
 
-    conn = get_db()
+    conn = get_connection()
     cur = conn.cursor()
 
     cur.execute(
-        "INSERT INTO workouts(client_name,date,workout_type,duration) VALUES(?,?,?,?)",
-        (name,"today",workout,duration)
+        "INSERT INTO progress (client_name, week, adherence) VALUES (?,?,?)",
+        (name, str(date.today()), adherence)
     )
 
     conn.commit()
@@ -172,67 +90,103 @@ def log_workout():
 
     return redirect("/dashboard")
 
-@app.route("/log_metrics", methods=["POST"])
-def log_metrics():
 
+# ---------- LOG WORKOUT ----------
+@app.route("/log_workout", methods=["POST"])
+def log_workout():
     name = request.form["name"]
-    weight = request.form["weight"]
-    waist = request.form["waist"]
-    bodyfat = request.form["bodyfat"]
+    workout = request.form["workout"]
+    duration = request.form["duration"]
 
-    conn = get_db()
+    conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("""
-    INSERT INTO metrics(client_name,date,weight,waist,bodyfat)
-    VALUES(?,?,?,?,?)
-    """,(name,"today",weight,waist,bodyfat))
+    cur.execute(
+        "INSERT INTO workouts(client_name,date,workout_type,duration) VALUES(?,?,?,?)",
+        (name, str(date.today()), workout, duration)
+    )
 
     conn.commit()
     conn.close()
 
     return redirect("/dashboard")
-@app.route("/workout_history")
-def workout_history():
 
-    conn = get_db()
+
+# ---------- LOG METRICS ----------
+@app.route("/log_metrics", methods=["POST"])
+def log_metrics():
+    name = request.form["name"]
+    weight = request.form["weight"]
+    waist = request.form["waist"]
+    bodyfat = request.form["bodyfat"]
+
+    conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("SELECT * FROM workouts ORDER BY id DESC")
-    workouts = cur.fetchall()
+    cur.execute("""
+    INSERT INTO metrics(client_name,date,weight,waist,bodyfat)
+    VALUES(?,?,?,?,?)
+    """, (name, str(date.today()), weight, waist, bodyfat))
 
+    conn.commit()
     conn.close()
 
+    return redirect("/dashboard")
 
-    return render_template("workouts.html", workouts=workouts)
 
-@app.route("/metrics")
-def metrics():
-
-    conn = get_db()
+# ---------- HISTORY ----------
+@app.route("/progress_history")
+def progress_history():
+    conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("SELECT * FROM metrics ORDER BY id DESC")
-    metrics = cur.fetchall()
-
-    conn.close()
-
-    return render_template("metrics.html", metrics=metrics)
-@app.route("/weight_chart")
-def weight_chart():
-
-    conn = get_db()
-    cur = conn.cursor()
-
-    cur.execute("SELECT weight FROM metrics")
+    cur.execute("SELECT * FROM progress ORDER BY id DESC")
     data = cur.fetchall()
 
     conn.close()
 
-    values = [d[0] for d in data]
+    return render_template("progress.html", progress=data)
+
+
+@app.route("/workout_history")
+def workout_history():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM workouts ORDER BY id DESC")
+    data = cur.fetchall()
+
+    conn.close()
+
+    return render_template("workouts.html", workouts=data)
+
+
+@app.route("/metrics")
+def metrics():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM metrics ORDER BY id DESC")
+    data = cur.fetchall()
+
+    conn.close()
+
+    return render_template("metrics.html", metrics=data)
+
+
+# ---------- CHART ----------
+@app.route("/progress_chart")
+def progress_chart():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT adherence FROM progress")
+    data = [x[0] for x in cur.fetchall()]
+
+    conn.close()
 
     plt.figure()
-    plt.plot(values)
+    plt.plot(data)
 
     img = io.BytesIO()
     plt.savefig(img, format="png")
@@ -241,6 +195,26 @@ def weight_chart():
     graph = base64.b64encode(img.getvalue()).decode()
 
     return render_template("chart.html", graph=graph)
+
+
+# ---------- API ----------
+@app.route("/recommend_calories", methods=["POST"])
+def recommend_calories():
+    data = request.get_json()
+
+    weight = float(data["weight"])
+    program = data["program"]
+
+    calories = int(weight * programs.get(program, 25))
+
+    return jsonify({
+        "recommended_calories": calories
+    })
+
+
+@app.route("/health")
+def health():
+    return jsonify({"status": "ok"}), 200
 
 
 if __name__ == "__main__":

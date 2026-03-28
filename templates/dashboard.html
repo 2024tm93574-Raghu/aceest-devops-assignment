@@ -27,6 +27,7 @@
 <th>Weight</th>
 <th>Program</th>
 <th>Calories</th>
+<th>Actions</th>
 </tr>
 
 {% for c in clients %}
@@ -39,8 +40,9 @@
 <td>{{c[4]}}</td>
 <td>{{c[5]}}</td>
 </tr>
-
-
+<td>
+<a href="/delete_client/{{c[0]}}">Delete</a>
+</td>
 {% endfor %}
 
 </table>
