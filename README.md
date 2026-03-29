@@ -4,9 +4,8 @@
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
-```
 aceest/
 ├── app.py                        # Main Flask application
 ├── requirements.txt              # Python dependencies
@@ -27,40 +26,35 @@ aceest/
 │   ├── progress.html
 │   ├── workouts.html
 │   ├── metrics.html
-│   └── chart.html
+│   ├── chart.html
+|   ├── ai_program.html
+|   └── client_plan.html
 ├── static/
 │   └── styles.css
 └── tests/
     └── test_app.py               # Pytest test suite
-```
 
 ---
 
-## ⚙️ Local Setup & Execution
+## Local Setup & Execution
 
 ### Prerequisites
 - Python 3.11+
 - Docker (for containerized runs)
 - Git
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/<your-username>/aceest-fitness.git
-cd aceest-fitness
-```
-
-### 2. Create a Virtual Environment
+### 1. Create a Virtual Environment
 ```bash
 python -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
 ```
 
-### 3. Install Dependencies
+### 2. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Run the Application
+### 3. Run the Application
 ```bash
 python app.py
 ```
@@ -69,7 +63,7 @@ Default login: **admin / admin**
 
 ---
 
-## 🐳 Running with Docker
+##  Running with Docker
 
 ### Build the Image
 ```bash
@@ -83,7 +77,7 @@ docker run -p 5000:5000 aceest-fitness:latest
 
 ---
 
-## 🧪 Running Tests Manually
+##  Running Tests Manually
 
 ### Without Docker
 ```bash
@@ -105,7 +99,7 @@ docker run --rm aceest-fitness:latest python -m pytest tests/test_app.py -v
 
 ---
 
-## 🔄 GitHub Actions — CI/CD Pipeline
+##  GitHub Actions — CI/CD Pipeline
 
 **File:** `.github/workflows/main.yml`
 
@@ -136,7 +130,7 @@ Each job depends on the previous — if lint fails, Docker build is skipped, and
 
 ---
 
-## 🏗️ Jenkins — BUILD Stage
+##  Jenkins — BUILD Stage
 
 **File:** `Jenkinsfile`
 
@@ -172,7 +166,7 @@ Jenkins handles the primary BUILD and quality gate phase.
 
 ---
 
-## 🚀 Application Features
+##  Application Features
 
 - **Client Management** — Add, view, and delete client profiles
 - **Calorie Estimation** — Auto-calculated based on weight × program factor
@@ -181,23 +175,3 @@ Jenkins handles the primary BUILD and quality gate phase.
 - **Body Metrics** — Track weight, waist, and body fat over time
 - **REST API** — `/recommend_calories` JSON endpoint
 - **Authentication** — Session-based login (admin/admin by default)
-
----
-
-## 👥 Team
-
-| Name | Role |
-|---|---|
-| Ruchitha Inaganti | DevOps & Backend |
-| Raghu Rapole | UI & Analytics |
-
----
-
-## 📋 Git Commit Strategy
-
-Commits follow descriptive messaging grouped by scope:
-- `feat:` — new features
-- `fix:` — bug fixes  
-- `infra:` — Docker, CI/CD, Jenkins changes
-- `test:` — test additions or fixes
-- `docs:` — README and documentation
