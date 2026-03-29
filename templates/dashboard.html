@@ -1,62 +1,98 @@
 <!DOCTYPE html>
 <html>
 <head>
-
-<title>ACEest Dashboard</title>
-<link rel="stylesheet" href="/static/styles.css">
-
-
+    <title>ACEest Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
-
 <body>
 
 <h1>ACEest Fitness Dashboard</h1>
+<p>Logged in as: <strong>{{ session_user }}</strong> | <a href="/logout">Logout</a></p>
 
-<a href="/">Add New Client</a>
-<a href="/progress_history">View Progress History</a>
-<a href="/progress_chart">Progress Chart</a>
-<a href="/workout_history">Workout History</a>
-<a href="/metrics">Body Metrics</a>
+<nav>
+    <a href="/">➕ Add New Client</a> |
+    <a href="/progress_history">📈 Progress History</a> |
+    <a href="/workout_history">🏋️ Workout History</a> |
+    <a href="/metrics">📏 Body Metrics</a>
+</nav>
 
+<h2>All Clients</h2>
 <table>
-
-<tr>
-<th>ID</th>
-<th>Name</th>
-<th>Age</th>
-<th>Weight</th>
-<th>Program</th>
-<th>Calories</th>
-<th>Actions</th>
-</tr>
-
-{% for c in clients %}
-
-<tr>
-<td>{{c[0]}}</td>
-<td>{{c[1]}}</td>
-<td>{{c[2]}}</td>
-<td>{{c[3]}}</td>
-<td>{{c[4]}}</td>
-<td>{{c[5]}}</td>
-</tr>
-<td>
-<a href="/delete_client/{{c[0]}}">Delete</a>
-</td>
-{% endfor %}
-
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Age</th>
+        <th>Weight (kg)</th>
+        <th>Program</th>
+        <th>Calories (kcal/day)</th>
+        <th>Actions</th>
+    </tr>
+    {% for c in clients %}
+    <tr>
+        <td>{{ c[0] }}</td>
+        <td>{{ c[1] }}</td>
+        <td>{{ c[2] }}</td>
+        <td>{{ c[3] }}</td>
+        <td>{{ c[4] }}</td>
+        <td>{{ c[5] }}</td>
+        <td>
+            <a href="/client_plan/{{ c[1] }}">📋 View Plan</a> |
+            <a href="/ai_program/{{ c[1] }}">🤖 AI Program</a> |
+            <a href="/progress_chart/{{ c[1] }}">📊 Chart</a> |
+            <a href="/delete_client/{{ c[0] }}">🗑 Delete</a>
+        </td>
+    </tr>
+    {% else %}
+    <tr>
+        <td colspan="7" style="text-align:center;">
+            No clients yet. <a href="/">Add your first client!</a>
+        </td>
+    </tr>
+    {% endfor %}
 </table>
 
-<h2>Weekly Progress</h2>
+<hr>
 
+<h2>Log Weekly Progress</h2>
 <form action="/save_progress" method="post">
+    <label>Client:</label>
+    <select name="name" required>
+        <option value="">-- Select Client --</option>
+        {% for c in clients %}
+        <option value="{{ c[1] }}">{{ c[1] }}</option>
+        {% endfor %}
+    </select>
+    <input type="number" name="adherence" placeholder="Adherence %" min="0" max="100" required>
+    <button type="submit">Save Progress</button>
+</form>
 
-<input type="text" name="name" placeholder="Client Name">
+<h2>Log Workout</h2>
+<form action="/log_workout" method="post">
+    <label>Client:</label>
+    <select name="name" required>
+        <option value="">-- Select Client --</option>
+        {% for c in clients %}
+        <option value="{{ c[1] }}">{{ c[1] }}</option>
+        {% endfor %}
+    </select>
+    <input type="text" name="workout" placeholder="Workout Type (e.g. Strength)" required>
+    <input type="number" name="duration" placeholder="Duration (min)" required>
+    <button type="submit">Save Workout</button>
+</form>
 
-<input type="number" name="adherence" placeholder="Adherence %">
-
-<button type="submit">Save Progress</button>
-
+<h2>Log Body Metrics</h2>
+<form action="/log_metrics" method="post">
+    <label>Client:</label>
+    <select name="name" required>
+        <option value="">-- Select Client --</option>
+        {% for c in clients %}
+        <option value="{{ c[1] }}">{{ c[1] }}</option>
+        {% endfor %}
+    </select>
+    <input type="number" step="0.1" name="weight" placeholder="Weight (kg)" required>
+    <input type="number" step="0.1" name="waist" placeholder="Waist (cm)" required>
+    <input type="number" step="0.1" name="bodyfat" placeholder="Body Fat %" required>
+    <button type="submit">Save Metrics</button>
 </form>
 
 </body>

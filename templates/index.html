@@ -1,72 +1,57 @@
+<!DOCTYPE html>
 <html>
-
 <head>
-<title>ACEest Fitness</title>
+    <title>ACEest Fitness</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
-
 <body>
 
 <h1>ACEest Functional Fitness System</h1>
 
+<nav>
+    <a href="/dashboard">⬅ Back to Dashboard</a>
+</nav>
+
 <form method="POST">
+    <h3>Add Client Profile</h3>
 
-<h3>Client Profile</h3>
+    <label>Name</label><br>
+    <input type="text" name="name" required><br><br>
 
-Name
-<input type="text" name="name" required>
+    <label>Age</label><br>
+    <input type="number" name="age" required><br><br>
 
-<br><br>
+    <label>Weight (kg)</label><br>
+    <input type="number" step="0.1" name="weight" required><br><br>
 
-Age
-<input type="number" name="age" required>
+    <label>Program</label><br>
+    <select name="program">
+        {% for p in programs %}
+        <option value="{{ p }}">{{ p }}</option>
+        {% endfor %}
+    </select><br><br>
 
-<br><br>
-
-Weight (kg)
-<input type="number" step="0.1" name="weight" required>
-
-<br><br>
-
-Program
-<select name="program">
-
-{% for p in programs %}
-<option value="{{p}}">{{p}}</option>
-{% endfor %}
-
-</select>
-
-<br><br>
-
-<button type="submit">Generate Plan</button>
-
+    <button type="submit">Generate Plan</button>
 </form>
 
 {% if result %}
-
-<h2>Client Saved Successfully</h2>
-<p>Data stored in database.</p>
 <hr>
+<h2>✅ Client Saved Successfully</h2>
 
-<h2>Client Summary</h2>
-
-Name : {{result.name}} <br>
-Age : {{result.age}} <br>
-Weight : {{result.weight}} kg <br>
-Program : {{result.program}} <br>
-
-<h3>Estimated Calories</h3>
-
-{{result.calories}} kcal/day
+<h3>Client Summary</h3>
+<p>Name: {{ result.name }}</p>
+<p>Age: {{ result.age }}</p>
+<p>Weight: {{ result.weight }} kg</p>
+<p>Program: {{ result.program }}</p>
+<p>Estimated Calories: <strong>{{ result.calories }} kcal/day</strong></p>
 
 <h3>Workout Plan</h3>
-
-<pre>{{result.workout}}</pre>
+<pre>{{ result.workout }}</pre>
 
 <h3>Nutrition Plan</h3>
+<pre>{{ result.diet }}</pre>
 
-<pre>{{result.diet}}</pre>
-
+<a href="/dashboard">Go to Dashboard →</a>
 {% endif %}
 
 </body>

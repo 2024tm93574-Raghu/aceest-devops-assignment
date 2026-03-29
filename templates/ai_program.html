@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Program - {{ client_name }}</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+<h1>🤖 AI Program Generator</h1>
+<h2>Client: {{ client_name }} &nbsp;|&nbsp; Program: {{ program }}</h2>
+
+<a href="/dashboard">⬅ Back to Dashboard</a> |
+<a href="/client_plan/{{ client_name }}">📋 View Standard Plan</a>
+
+<hr>
+
+<form method="POST">
+    <label>Select Experience Level:</label><br><br>
+    <select name="experience" required>
+        <option value="beginner">🟢 Beginner (3 days/week, 2-3 sets, 8-12 reps)</option>
+        <option value="intermediate">🟡 Intermediate (4 days/week, 3-4 sets, 8-15 reps)</option>
+        <option value="advanced">🔴 Advanced (5 days/week, 4-5 sets, 6-15 reps)</option>
+    </select>
+    <br><br>
+    <button type="submit">🤖 Generate Program</button>
+</form>
+
+{% if generated %}
+<hr>
+<h2>Generated Weekly Program</h2>
+<table>
+    <tr>
+        <th>Day</th>
+        <th>Exercise</th>
+        <th>Sets</th>
+        <th>Reps</th>
+    </tr>
+    {% for row in generated %}
+    <tr>
+        <td>{{ row.day }}</td>
+        <td>{{ row.exercise }}</td>
+        <td>{{ row.sets }}</td>
+        <td>{{ row.reps }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<br>
+<p><em>💡 This program is auto-generated based on the client's program type and experience level. Regenerate anytime for a new variation.</em></p>
+{% endif %}
+
+</body>
+</html>

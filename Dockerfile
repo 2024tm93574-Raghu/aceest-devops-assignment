@@ -1,21 +1,28 @@
-# Use official Python image
-FROM python:3.11-slim
+# ---------- Stage 1: Build ----------
+FROM python:3.11-slim AS base
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
 # Set working directory
 WORKDIR /app
 
-# Copy dependency file and install
+# Install system dependencies for matplotlib
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libpng-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the code
+# Copy application source
 COPY . .
 
 # Expose Flask port
 EXPOSE 5000
 
-# Environment variable for Flask
-ENV FLASK_APP=app.py
-
-# Run the app
+# Run the application
 CMD ["python", "app.py"]

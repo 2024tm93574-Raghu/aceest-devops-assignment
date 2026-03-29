@@ -1,5 +1,19 @@
-<h1>Progress Chart</h1>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Progress Chart - {{ client_name }}</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
 
-<img src="data:image/png;base64,{{graph}}">
+<h1>📊 Progress Chart — {{ client_name }}</h1>
 
-<a href="/dashboard">Back</a>
+<a href="/dashboard">⬅ Back to Dashboard</a>
+
+<br><br>
+
+<img src="data:image/png;base64,{{ graph }}"
+     style="max-width:100%; border: 2px solid #d4af37; border-radius: 8px;">
+
+</body>
+</html>

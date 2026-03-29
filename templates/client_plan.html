@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Client Plan - {{ result.name }}</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+<h1>📋 Plan for {{ result.name }}</h1>
+<a href="/dashboard">⬅ Back to Dashboard</a>
+
+<hr>
+
+<table>
+    <tr><th>Field</th><th>Value</th></tr>
+    <tr><td>Name</td><td>{{ result.name }}</td></tr>
+    <tr><td>Age</td><td>{{ result.age }}</td></tr>
+    <tr><td>Weight</td><td>{{ result.weight }} kg</td></tr>
+    <tr><td>Program</td><td>{{ result.program }}</td></tr>
+    <tr><td>Estimated Calories</td><td><strong>{{ result.calories }} kcal/day</strong></td></tr>
+</table>
+
+<h2>🏋️ Weekly Workout Plan</h2>
+<pre style="background:#222; padding:20px; border-left: 4px solid #d4af37;">{{ result.workout }}</pre>
+
+<h2>🥗 Nutrition Plan</h2>
+<pre style="background:#222; padding:20px; border-left: 4px solid #2ecc71;">{{ result.diet }}</pre>
+
+<br>
+<a href="/ai_program/{{ result.name }}">🤖 Generate AI Program for {{ result.name }}</a>
+
+</body>
+</html>
