@@ -1,203 +1,164 @@
-# ACEest Fitness & Gym — DevOps CI/CD Pipeline
+# ACEest Fitness & Gym – DevOps CI/CD Project
 
-> A Flask-based fitness management system with automated CI/CD using GitHub Actions and Jenkins.
+## Introduction
 
----
+This project is a Flask-based fitness and gym management application developed as part of a DevOps assignment. The system helps manage clients, track workouts, monitor progress, and store body metrics.
 
-## 📁 Project Structure
-
-```
-aceest/
-├── app.py                        # Main Flask application
-├── requirements.txt              # Python dependencies
-├── Dockerfile                    # Container build instructions
-├── Jenkinsfile                   # Jenkins BUILD pipeline
-├── .github/
-│   └── workflows/
-│       └── main.yml              # GitHub Actions CI/CD pipeline
-├── models/
-│   └── db.py                     # SQLite database initialization
-├── routes/
-│   ├── client_routes.py          # Client management endpoints
-│   └── analytic_routes.py        # Progress, workouts & metrics endpoints
-├── templates/
-│   ├── index.html
-│   ├── dashboard.html
-│   ├── login.html
-│   ├── progress.html
-│   ├── workouts.html
-│   ├── metrics.html
-│   └── chart.html
-├── static/
-│   └── styles.css
-└── tests/
-    └── test_app.py               # Pytest test suite
-```
+The main goal of this project is not only to build a working application, but also to implement a complete DevOps pipeline using Git, Docker, GitHub Actions, and Jenkins.
 
 ---
 
-## ⚙️ Local Setup & Execution
+## Project Structure
 
-### Prerequisites
-- Python 3.11+
-- Docker (for containerized runs)
-- Git
+The project is organized into multiple folders for better clarity and modular design:
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/<your-username>/aceest-fitness.git
-cd aceest-fitness
-```
-
-### 2. Create a Virtual Environment
-```bash
-python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-```
-
-### 3. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Run the Application
-```bash
-python app.py
-```
-Visit `http://localhost:5000` in your browser.
-Default login: **admin / admin**
+* `app.py` – Main Flask application
+* `models/db.py` – Database initialization and schema
+* `routes/` – Contains route files for client and analytics logic
+* `templates/` – HTML pages for UI
+* `static/` – CSS styling
+* `tests/` – Pytest test cases
+* `Dockerfile` – Instructions to build Docker image
+* `Jenkinsfile` – Jenkins pipeline configuration
+* `.github/workflows/main.yml` – GitHub Actions pipeline
 
 ---
 
-## 🐳 Running with Docker
+## How to Run the Application Locally
 
-### Build the Image
-```bash
-docker build -t aceest-fitness:latest .
-```
+1. Clone the repository:
 
-### Run the Container
-```bash
-docker run -p 5000:5000 aceest-fitness:latest
-```
-
----
-
-## 🧪 Running Tests Manually
-
-### Without Docker
-```bash
-pip install pytest
-python -m pytest tests/test_app.py -v
-```
-
-### Inside Docker
-```bash
-docker run --rm aceest-fitness:latest python -m pytest tests/test_app.py -v
-```
-
-### Test Coverage
-| Test | Route | Expected |
-|---|---|---|
-| `test_health` | `GET /health` | 200 OK |
-| `test_dashboard` | `GET /dashboard` | 200 OK (redirects to login) |
-| `test_calories_api` | `POST /recommend_calories` | 200 + JSON |
-
----
-
-## 🔄 GitHub Actions — CI/CD Pipeline
-
-**File:** `.github/workflows/main.yml`
-
-**Triggered on:** Every `push` or `pull_request` to `main`
-
-### Pipeline Stages
-
-```
-Push to GitHub
-      │
-      ▼
-┌─────────────┐
-│  1. Lint    │  flake8 syntax & style check
-└──────┬──────┘
-       │
-       ▼
-┌──────────────────┐
-│  2. Docker Build │  Build Docker image from Dockerfile
-└────────┬─────────┘
-         │
-         ▼
-┌───────────────────────┐
-│  3. Pytest (in Docker)│  Run full test suite inside the container
-└───────────────────────┘
-```
-
-Each job depends on the previous — if lint fails, Docker build is skipped, and so on.
-
----
-
-## 🏗️ Jenkins — BUILD Stage
-
-**File:** `Jenkinsfile`
-
-Jenkins handles the primary BUILD and quality gate phase.
-
-### Jenkins Setup Steps
-
-1. **Install Jenkins** (locally or via Docker):
-   ```bash
-   docker run -p 8080:8080 jenkins/jenkins:lts
+   ```
+   git clone https://github.com/<your-username>/aceest-fitness.git
+   cd aceest-fitness
    ```
 
-2. **Install plugins:** Git, Pipeline, Docker Pipeline
+2. Create a virtual environment:
 
-3. **Create a new Pipeline job:**
-   - Source: Pipeline script from SCM
-   - SCM: Git → your GitHub repo URL
-   - Branch: `main`
-   - Script path: `Jenkinsfile`
+   ```
+   python -m venv venv
+   venv\Scripts\activate   (on Windows)
+   ```
 
-4. **Trigger a build** — Jenkins will:
+3. Install dependencies:
 
-### Jenkins Pipeline Stages
+   ```
+   pip install -r requirements.txt
+   ```
 
-| Stage | Description |
-|---|---|
-| Checkout | Pulls latest code from GitHub |
-| Setup Python | Creates venv and installs dependencies |
-| Lint | Runs flake8 syntax checks |
-| Unit Tests | Executes `pytest` test suite |
-| Docker Build | Builds and tags the Docker image |
-| Verify Build | Confirms image exists locally |
+4. Run the application:
 
----
+   ```
+   python app.py
+   ```
 
-## 🚀 Application Features
+5. Open in browser:
 
-- **Client Management** — Add, view, and delete client profiles
-- **Calorie Estimation** — Auto-calculated based on weight × program factor
-- **Workout Logging** — Log workout type and duration per client
-- **Progress Tracking** — Weekly adherence tracking with chart visualization
-- **Body Metrics** — Track weight, waist, and body fat over time
-- **REST API** — `/recommend_calories` JSON endpoint
-- **Authentication** — Session-based login (admin/admin by default)
+   ```
+   http://localhost:5000
+   ```
+
+Default login credentials:
+
+* Username: admin
+* Password: admin
 
 ---
 
-## 👥 Team
+## Running Tests
 
-| Name | Role |
-|---|---|
-| Ruchitha Inaganti | DevOps & Backend |
-| Raghu Rapole | UI & Analytics |
+To run tests manually:
+
+```
+pytest
+```
+
+The test cases verify:
+
+* Application health endpoint
+* Dashboard loading
+* Calories API functionality
 
 ---
 
-## 📋 Git Commit Strategy
+## Docker Setup
 
-Commits follow descriptive messaging grouped by scope:
-- `feat:` — new features
-- `fix:` — bug fixes  
-- `infra:` — Docker, CI/CD, Jenkins changes
-- `test:` — test additions or fixes
-- `docs:` — README and documentation
+To build and run the application using Docker:
+
+1. Build the image:
+
+   ```
+   docker build -t aceest-fitness .
+   ```
+
+2. Run the container:
+
+   ```
+   docker run -p 5000:5000 aceest-fitness
+   ```
+
+---
+
+## GitHub Actions (CI Pipeline)
+
+The CI pipeline is configured using GitHub Actions.
+
+It is triggered on every push and pull request to the main branch.
+
+The pipeline performs the following steps:
+
+1. Installs dependencies
+2. Runs pytest
+3. Builds the Docker image
+
+This ensures that the code is always tested and build-ready.
+
+---
+
+## Jenkins Pipeline
+
+Jenkins is used as the BUILD stage in the pipeline.
+
+The Jenkins pipeline performs:
+
+* Code checkout from GitHub
+* Dependency installation
+* Running tests using pytest
+* Building the Docker image
+
+This acts as an additional validation layer before deployment.
+
+---
+
+## Application Features
+
+The application provides the following features:
+
+* Add and manage client profiles
+* Automatically calculate calorie requirements
+* Log workouts and track duration
+* Record weekly progress and adherence
+* Store body metrics such as weight, waist, and body fat
+* Generate progress charts
+* Simple login system using session management
+* API endpoint for calorie recommendation
+
+---
+
+## DevOps Implementation
+
+This project demonstrates the following DevOps concepts:
+
+* Version control using Git and GitHub
+* Automated testing using Pytest
+* Containerization using Docker
+* Continuous Integration using GitHub Actions
+* Build automation using Jenkins
+
+---
+
+## Conclusion
+
+This project shows how a simple Flask application can be integrated with modern DevOps tools to create a complete CI/CD workflow. It ensures code quality, consistency across environments, and automated build processes.
+
+---
