@@ -26,33 +26,26 @@ The project is organized into multiple folders for better clarity and modular de
 
 ## How to Run the Application Locally
 
-1. Clone the repository:
-
-   ```
-   git clone https://github.com/<your-username>/aceest-fitness.git
-   cd aceest-fitness
-   ```
-
-2. Create a virtual environment:
+1. Create a virtual environment:
 
    ```
    python -m venv venv
    venv\Scripts\activate   (on Windows)
    ```
 
-3. Install dependencies:
+2. Install dependencies:
 
    ```
    pip install -r requirements.txt
    ```
 
-4. Run the application:
+3. Run the application:
 
    ```
    python app.py
    ```
 
-5. Open in browser:
+4. Open in browser:
 
    ```
    http://localhost:5000
