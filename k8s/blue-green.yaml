@@ -1,0 +1,80 @@
+# k8s/blue-green.yaml
+# Strategy 2: Blue-Green Deployment
+#
+# HOW IT WORKS:
+#   - BLUE = current stable version (live traffic goes here)
+#   - GREEN = new version (deployed but no traffic yet)
+#   - To switch traffic: change 'version: blue' to 'version: green' in the Service below
+#   - Instant switch, instant rollback by switching label back
+#
+# COMMANDS:
+#   kubectl apply -f k8s/blue-green.yaml
+#   # To switch to green: edit service version: blue → green, then:
+#   kubectl apply -f k8s/blue-green.yaml
+
+# BLUE Deployment (current stable version)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-blue
+  labels:
+    app: aceest-fitness
+    version: blue
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: aceest-fitness
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: aceest-fitness
+        version: blue
+    spec:
+      containers:
+      - name: aceest-fitness
+        image: 2024tm93574raghu/aceest-fitness:v1.0
+        ports:
+        - containerPort: 5000
+---
+# GREEN Deployment (new version being released)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-green
+  labels:
+    app: aceest-fitness
+    version: green
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: aceest-fitness
+      version: green
+  template:
+    metadata:
+      labels:
+        app: aceest-fitness
+        version: green
+    spec:
+      containers:
+      - name: aceest-fitness
+        image: 2024tm93574raghu/aceest-fitness:latest
+        ports:
+        - containerPort: 5000
+---
+# Service - controls which version gets traffic
+# Change 'version: blue' to 'version: green' to switch all traffic
+apiVersion: v1
+kind: Service
+metadata:
+  name: aceest-fitness-service
+spec:
+  selector:
+    app: aceest-fitness
+    version: blue      # <-- CHANGE THIS to 'green' to switch traffic
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer

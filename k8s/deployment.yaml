@@ -1,0 +1,46 @@
+# k8s/deployment.yaml
+# Strategy 1: Rolling Update (zero-downtime, default Kubernetes strategy)
+# Replaces old pods one-by-one. If a pod fails health check, rollout stops.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-fitness
+  labels:
+    app: aceest-fitness
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: aceest-fitness
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1        # Allow 1 extra pod during update
+      maxUnavailable: 1  # Allow 1 pod to be unavailable during update
+  template:
+    metadata:
+      labels:
+        app: aceest-fitness
+    spec:
+      containers:
+      - name: aceest-fitness
+        image: 2024tm93574raghu/aceest-fitness:latest
+        ports:
+        - containerPort: 5000
+        env:
+        - name: FLASK_ENV
+          value: "production"
+        # Health checks so Kubernetes knows when app is ready
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 15
+          periodSeconds: 20

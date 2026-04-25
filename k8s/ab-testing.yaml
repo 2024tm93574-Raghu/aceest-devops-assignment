@@ -1,0 +1,58 @@
+# k8s/ab-testing.yaml
+# Strategy 5: A/B Testing
+#
+# HOW IT WORKS:
+#   - Version A (2 pods) and Version B (2 pods) run simultaneously
+#   - Users are split between A and B based on Kubernetes load balancing
+#   - Compare metrics between A and B (conversion rates, errors, speed)
+#   - Keep the better performing version, delete the other
+#
+# COMMANDS:
+#   kubectl apply -f k8s/ab-testing.yaml
+#   kubectl get pods   # Shows variant-a and variant-b pods
+
+# VARIANT A (original version)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-variant-a
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: aceest-fitness
+      variant: a
+  template:
+    metadata:
+      labels:
+        app: aceest-fitness
+        variant: a
+    spec:
+      containers:
+      - name: aceest-fitness
+        image: 2024tm93574raghu/aceest-fitness:v1.0
+        ports:
+        - containerPort: 5000
+---
+# VARIANT B (new version / UI change)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-variant-b
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: aceest-fitness
+      variant: b
+  template:
+    metadata:
+      labels:
+        app: aceest-fitness
+        variant: b
+    spec:
+      containers:
+      - name: aceest-fitness
+        image: 2024tm93574raghu/aceest-fitness:latest
+        ports:
+        - containerPort: 5000

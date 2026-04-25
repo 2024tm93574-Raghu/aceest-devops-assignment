@@ -1,0 +1,16 @@
+# k8s/service.yaml
+# Exposes the app to the outside world via LoadBalancer
+# In Minikube: use 'minikube service aceest-fitness-service --url' to get access URL
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: aceest-fitness-service
+spec:
+  selector:
+    app: aceest-fitness
+  ports:
+  - protocol: TCP
+    port: 80           # External port
+    targetPort: 5000   # Flask app internal port
+  type: LoadBalancer

@@ -1,0 +1,59 @@
+# k8s/shadow.yaml
+# Strategy 4: Shadow Deployment
+#
+# HOW IT WORKS:
+#   - Production pods serve real users normally
+#   - Shadow pods receive a COPY (mirror) of live traffic
+#   - Shadow responses are DISCARDED — users never see them
+#   - Used to test new version under real load with ZERO risk
+#   - No users are affected at all
+#
+# COMMANDS:
+#   kubectl apply -f k8s/shadow.yaml
+#   kubectl get pods   # Shows production + shadow pods running
+
+# PRODUCTION pods (real user traffic)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-production
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: aceest-fitness
+      track: production
+  template:
+    metadata:
+      labels:
+        app: aceest-fitness
+        track: production
+    spec:
+      containers:
+      - name: aceest-fitness
+        image: 2024tm93574raghu/aceest-fitness:v1.0
+        ports:
+        - containerPort: 5000
+---
+# SHADOW pods (mirrored traffic, responses discarded)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-shadow
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: aceest-fitness
+      track: shadow
+  template:
+    metadata:
+      labels:
+        app: aceest-fitness
+        track: shadow
+    spec:
+      containers:
+      - name: aceest-fitness
+        image: 2024tm93574raghu/aceest-fitness:latest
+        ports:
+        - containerPort: 5000

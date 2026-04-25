@@ -1,0 +1,58 @@
+# k8s/canary.yaml
+# Strategy 3: Canary Release
+#
+# HOW IT WORKS:
+#   - 9 pods run the stable (old) version = 90% of traffic
+#   - 1 pod runs the new (canary) version = 10% of traffic
+#   - Monitor the canary pod for errors before full rollout
+#   - If healthy: scale canary up and stable down
+#   - If unhealthy: delete canary deployment, zero user impact
+#
+# COMMANDS:
+#   kubectl apply -f k8s/canary.yaml
+#   kubectl get pods   # See 9 stable + 1 canary pods
+#   # After confirming canary is healthy:
+#   kubectl scale deployment aceest-canary --replicas=10
+#   kubectl scale deployment aceest-stable --replicas=0
+
+# STABLE: 90% of users (9 pods)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-stable
+spec:
+  replicas: 9
+  selector:
+    matchLabels:
+      app: aceest-fitness
+  template:
+    metadata:
+      labels:
+        app: aceest-fitness
+    spec:
+      containers:
+      - name: aceest-fitness
+        image: 2024tm93574raghu/aceest-fitness:v1.0
+        ports:
+        - containerPort: 5000
+---
+# CANARY: 10% of users (1 pod)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-canary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aceest-fitness
+  template:
+    metadata:
+      labels:
+        app: aceest-fitness
+    spec:
+      containers:
+      - name: aceest-fitness
+        image: 2024tm93574raghu/aceest-fitness:latest
+        ports:
+        - containerPort: 5000
