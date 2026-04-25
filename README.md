@@ -1,157 +1,259 @@
-# ACEest Fitness & Gym – DevOps CI/CD Project
+# ACEest Fitness & Gym — DevOps CI/CD Project
 
-## Introduction
+**Student:** Raghu Rapole | **ID:** 2024TM93574
+**Course:** Introduction to DevOps (CSIZG514/SEZG514) | S1-25
 
-This project is a Flask-based fitness and gym management application developed as part of a DevOps assignment. The system helps manage clients, track workouts, monitor progress, and store body metrics.
+---
 
-The main goal of this project is not only to build a working application, but also to implement a complete DevOps pipeline using Git, Docker, GitHub Actions, and Jenkins.
+## Assignment 1 — What Was Built
+
+A complete CI/CD pipeline for a Flask-based gym management application.
+
+### Application Features
+- Add and manage client profiles with calorie calculation
+- Log workouts and track duration
+- Record weekly progress and adherence percentages
+- Store body metrics (weight, waist, body fat)
+- Generate progress charts using matplotlib
+- AI workout program generator
+- Session-based login system (default: admin / admin)
+- REST API endpoint for calorie recommendations
+
+### Assignment 1 Pipeline
+| Tool | Role |
+|------|------|
+| Git + GitHub | Version control and remote repository |
+| Pytest | Automated unit testing (health, auth, calories API) |
+| Docker | Containerize the Flask application |
+| GitHub Actions | CI pipeline: install → lint → test → docker build |
+| Jenkins | Secondary BUILD stage: checkout → setup → lint → test → docker build |
+
+---
+
+## Assignment 2 — What Was Extended
+
+Building on Assignment 1, the pipeline now includes SonarQube code quality scanning, Docker Hub image publishing, and Kubernetes deployment with 5 deployment strategies.
+
+### New Components Added
+| Component | Description |
+|-----------|-------------|
+| `sonar-project.properties` | SonarQube static analysis configuration |
+| `k8s/deployment.yaml` | Kubernetes Rolling Update deployment (3 replicas) |
+| `k8s/service.yaml` | LoadBalancer service (port 80 → Flask 5000) |
+| `k8s/blue-green.yaml` | Blue-Green: instant traffic switching between versions |
+| `k8s/canary.yaml` | Canary: 10% traffic to new version, 90% stable |
+| `k8s/shadow.yaml` | Shadow: mirror live traffic to new version silently |
+| `k8s/ab-testing.yaml` | A/B Testing: 50/50 split between two variants |
+| `Jenkinsfile` (updated) | 7 stages: added SonarQube + Docker Push + K8s Deploy |
+| `.github/workflows/main.yml` (updated) | Added Docker Hub push job after tests pass |
+
+### Assignment 2 Pipeline (8 Stages)
+```
+Code Push → GitHub
+    → Jenkins triggers:
+        1. Checkout
+        2. Python Setup
+        3. Lint (flake8)
+        4. Unit Tests (pytest + coverage XML)
+        5. SonarQube Scan (bugs, vulnerabilities, code smells)
+        6. Docker Build + Push to Docker Hub
+        7. Kubernetes Deploy (Rolling Update)
+    → On failure: auto kubectl rollout undo
+```
 
 ---
 
 ## Project Structure
 
-The project is organized into multiple folders for better clarity and modular design:
-
-* `app.py` – Main Flask application
-* `models/db.py` – Database initialization and schema
-* `routes/` – Contains route files for client and analytics logic
-* `templates/` – HTML pages for UI
-* `static/` – CSS styling
-* `tests/` – Pytest test cases
-* `Dockerfile` – Instructions to build Docker image
-* `Jenkinsfile` – Jenkins pipeline configuration
-* `.github/workflows/main.yml` – GitHub Actions pipeline
+```
+aceest-devops-assignment/
+├── app.py                        # Main Flask application
+├── models/
+│   └── db.py                     # SQLite database schema
+├── routes/
+│   ├── client_routes.py          # Dashboard, delete client
+│   └── analytic_routes.py        # Progress, workouts, metrics
+├── templates/                    # HTML pages
+│   ├── login.html, dashboard.html, index.html
+│   ├── client_plan.html, ai_program.html, chart.html
+│   ├── progress.html, workouts.html, metrics.html
+├── static/
+│   └── styles.css                # Dark theme styling
+├── tests/
+│   └── test_app.py               # Pytest test suite
+├── k8s/                          # Kubernetes manifests (Assignment 2)
+│   ├── deployment.yaml           # Rolling Update strategy
+│   ├── service.yaml              # LoadBalancer service
+│   ├── blue-green.yaml           # Blue-Green strategy
+│   ├── canary.yaml               # Canary Release strategy
+│   ├── shadow.yaml               # Shadow deployment
+│   └── ab-testing.yaml           # A/B Testing strategy
+├── Dockerfile                    # Container build instructions
+├── Jenkinsfile                   # Jenkins 7-stage pipeline
+├── sonar-project.properties      # SonarQube configuration
+├── requirements.txt              # Python dependencies
+└── .github/workflows/main.yml    # GitHub Actions CI/CD
+```
 
 ---
 
-## How to Run the Application Locally
+## How to Run Locally
 
-1. Create a virtual environment:
+```bash
+# 1. Clone the repository
+git clone https://github.com/2024tm93574-Raghu/aceest-devops-assignment.git
+cd aceest-devops-assignment
 
-   ```
-   python -m venv venv
-   venv\Scripts\activate   (on Windows)
-   ```
+# 2. Create virtual environment
+python -m venv venv
+venv\Scripts\activate        # Windows
+source venv/bin/activate     # Mac/Linux
 
-2. Install dependencies:
+# 3. Install dependencies
+pip install -r requirements.txt
 
-   ```
-   pip install -r requirements.txt
-   ```
+# 4. Run the application
+python app.py
 
-3. Run the application:
-
-   ```
-   python app.py
-   ```
-
-4. Open in browser:
-
-   ```
-   http://localhost:5000
-   ```
-
-Default login credentials:
-
-* Username: admin
-* Password: admin
+# 5. Open browser
+# http://localhost:5000
+# Login: admin / admin
+```
 
 ---
 
 ## Running Tests
 
-To run tests manually:
+```bash
+# Run all tests
+pytest tests/test_app.py -v
 
+# Run with coverage report
+pytest tests/test_app.py -v --cov=. --cov-report=xml
 ```
-pytest
-```
 
-The test cases verify:
-
-* Application health endpoint
-* Dashboard loading
-* Calories API functionality
+Tests cover:
+- `/health` endpoint returns `{"status": "ok"}`
+- Dashboard redirects to login when not authenticated
+- Login page loads correctly
+- Invalid credentials stay on login page
+- `/recommend_calories` returns correct values for Fat Loss, Muscle Gain, Beginner
 
 ---
 
-## Docker Setup
+## Docker
 
-To build and run the application using Docker:
+```bash
+# Build image
+docker build -t aceest-fitness .
 
-1. Build the image:
+# Run container
+docker run -p 5000:5000 aceest-fitness
 
-   ```
-   docker build -t aceest-fitness .
-   ```
+# Pull from Docker Hub
+docker pull 2024tm93574raghu/aceest-fitness:latest
 
-2. Run the container:
-
-   ```
-   docker run -p 5000:5000 aceest-fitness
-   ```
+# Docker Hub repository
+# https://hub.docker.com/r/2024tm93574raghu/aceest-fitness
+```
 
 ---
 
-## GitHub Actions (CI Pipeline)
+## SonarQube (Assignment 2)
 
-The CI pipeline is configured using GitHub Actions.
+```bash
+# Start SonarQube (Docker required)
+docker run -d --name sonarqube -p 9000:9000 sonarqube:lts-community
 
-It is triggered on every push and pull request to the main branch.
+# Open: http://localhost:9000  (login: admin / admin)
+# Create project with key: aceest-fitness
+# Generate a token, then run:
 
-The pipeline performs the following steps:
+sonar-scanner \
+  -Dsonar.projectKey=aceest-fitness \
+  -Dsonar.sources=. \
+  -Dsonar.host.url=http://localhost:9000 \
+  -Dsonar.login=YOUR_TOKEN_HERE
+```
 
-1. Installs dependencies
-2. Runs pytest
-3. Builds the Docker image
+---
 
-This ensures that the code is always tested and build-ready.
+## Kubernetes Deployment (Assignment 2)
+
+```bash
+# Prerequisites: Install Minikube + kubectl
+
+# Start Minikube
+minikube start
+
+# Strategy 1: Rolling Update (default, zero downtime)
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+minikube service aceest-fitness-service --url   # Get access URL
+
+# Strategy 2: Blue-Green (instant traffic switch)
+kubectl apply -f k8s/blue-green.yaml
+
+# Strategy 3: Canary (10% traffic to new version)
+kubectl apply -f k8s/canary.yaml
+
+# Strategy 4: Shadow (mirror traffic, no user impact)
+kubectl apply -f k8s/shadow.yaml
+
+# Strategy 5: A/B Testing (50/50 user split)
+kubectl apply -f k8s/ab-testing.yaml
+
+# Rollback (emergency)
+kubectl rollout undo deployment/aceest-fitness
+
+# Check pod status
+kubectl get pods
+```
 
 ---
 
 ## Jenkins Pipeline
 
-Jenkins is used as the BUILD stage in the pipeline.
+The Jenkins pipeline reads the `Jenkinsfile` from this repository via SCM.
 
-The Jenkins pipeline performs:
+**Assignment 1 stages:** Checkout → Setup → Lint → Unit Tests → Docker Build
 
-* Code checkout from GitHub
-* Dependency installation
-* Running tests using pytest
-* Building the Docker image
+**Assignment 2 stages (additional):**
+- **Stage 5:** SonarQube static analysis (requires SonarQube server configured in Jenkins)
+- **Stage 6:** Build Docker image + push to Docker Hub (requires `dockerhub-creds` credential in Jenkins)
+- **Stage 7:** Deploy to Kubernetes via `kubectl` commands
 
-This acts as an additional validation layer before deployment.
-
----
-
-## Application Features
-
-The application provides the following features:
-
-* Add and manage client profiles
-* Automatically calculate calorie requirements
-* Log workouts and track duration
-* Record weekly progress and adherence
-* Store body metrics such as weight, waist, and body fat
-* Generate progress charts
-* Simple login system using session management
-* API endpoint for calorie recommendation
+On pipeline failure, the `post { failure }` block automatically runs `kubectl rollout undo` to revert to the last stable version.
 
 ---
 
-## DevOps Implementation
+## GitHub Actions
 
-This project demonstrates the following DevOps concepts:
+Triggered on every push and pull request to `main`.
 
-* Version control using Git and GitHub
-* Automated testing using Pytest
-* Containerization using Docker
-* Continuous Integration using GitHub Actions
-* Build automation using Jenkins
+**Job 1 — test:** Install → Lint → Pytest (runs on all pushes and PRs)
+
+**Job 2 — docker:** Build Docker image + Push to Docker Hub (runs only after test job passes, only on push to main)
+
+Docker Hub credentials must be added to GitHub Secrets as:
+- `DOCKER_USERNAME` = `2024tm93574raghu`
+- `DOCKER_PASSWORD` = your Docker Hub password or access token
 
 ---
 
-## Conclusion
+## DevOps Concepts Demonstrated
 
-This project shows how a simple Flask application can be integrated with modern DevOps tools to create a complete CI/CD workflow. It ensures code quality, consistency across environments, and automated build processes.
+| Concept | Tool Used |
+|---------|-----------|
+| Version Control | Git + GitHub |
+| Automated Testing | Pytest |
+| Code Quality | SonarQube |
+| Containerization | Docker |
+| Image Registry | Docker Hub |
+| CI Pipeline | GitHub Actions |
+| Build Automation | Jenkins |
+| Container Orchestration | Kubernetes (Minikube) |
+| Deployment Strategies | Rolling, Blue-Green, Canary, Shadow, A/B |
+| Auto Rollback | `kubectl rollout undo` |
 
 ---
