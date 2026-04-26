@@ -11,7 +11,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_USER  = "2024tm93574raghu"
+        DOCKER_USER  = "raghurapole"
         IMAGE_NAME   = "aceest-fitness"
         DOCKER_IMAGE = "${DOCKER_USER}/${IMAGE_NAME}"
         IMAGE_TAG    = "${BUILD_NUMBER}"
