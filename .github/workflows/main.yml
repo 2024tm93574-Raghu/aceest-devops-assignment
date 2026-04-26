@@ -70,7 +70,7 @@ jobs:
 
       - name: Push Docker Image to Hub
         run: |
-          docker push 2024tm93574raghu/aceest-fitness:${{ github.sha }}
-          docker push 2024tm93574raghu/aceest-fitness:latest
+          docker push raghurapole/aceest-fitness:${{ github.sha }}
+          docker push raghurapole/aceest-fitness:latest
         # Only push on push to main, not on pull requests
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
