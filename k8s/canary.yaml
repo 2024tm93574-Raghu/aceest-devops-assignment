@@ -32,7 +32,7 @@ spec:
     spec:
       containers:
       - name: aceest-fitness
-        image: 2024tm93574raghu/aceest-fitness:v1.0
+        image: raghurapole/aceest-fitness:latest
         ports:
         - containerPort: 5000
 ---
@@ -53,6 +53,6 @@ spec:
     spec:
       containers:
       - name: aceest-fitness
-        image: 2024tm93574raghu/aceest-fitness:latest
+        image: raghurapole/aceest-fitness:latest
         ports:
         - containerPort: 5000
