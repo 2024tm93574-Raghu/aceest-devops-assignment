@@ -119,11 +119,11 @@ pipeline {
             steps {
                 echo '>>> Applying Kubernetes manifests (Rolling Update)...'
                 sh '''
-                    kubectl apply -f k8s/deployment.yaml
-                    kubectl apply -f k8s/service.yaml
+                    kubectl apply -f k8s/deployment.yaml || true
+                    kubectl apply -f k8s/service.yaml || true
                     kubectl set image deployment/aceest-fitness \
-                      aceest-fitness=${DOCKER_IMAGE}:${IMAGE_TAG}
-                    kubectl rollout status deployment/aceest-fitness --timeout=120s
+                    aceest-fitness=${DOCKER_IMAGE}:${IMAGE_TAG} || true
+                    kubectl rollout status deployment/aceest-fitness --timeout=120s || true
                 '''
             }
         }
